@@ -1,5 +1,5 @@
 {
-  "name": "thingsboard-telegram-bot",
+  "name": "thingsboard-voice",
   "version": "1.0.0",
   "main": "server.js",
   "dependencies": {
