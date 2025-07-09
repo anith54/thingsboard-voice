@@ -4,10 +4,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 🔐 ThingsBoard Cloud credentials
-const TB_USERNAME = "your@email.com";         // <-- Replace with your email
-const TB_PASSWORD = "your_password";          // <-- Replace with your password
-const TB_DEVICE_ID = "your_device_id_here";   // <-- Replace with your Device ID
-
+const TB_USERNAME = "anith.kumar@synedynesystems.com";        
+const TB_PASSWORD = "Anith@2003";          
+const TB_DEVICE_ID = "509c71b0-5bdf-11f0-b50e-99d9c8fcd8e7";   
 // 🔑 Get JWT token
 async function getJWTToken() {
     try {
