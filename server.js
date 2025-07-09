@@ -25,16 +25,14 @@ async function getJWTToken() {
 // Fetch latest volume reading from ThingsBoard
 async function getLatestVolume(token) {
     try {
-        const response = await axios.get(
-            `https://thingsboard.cloud/api/plugins/telemetry/${TB_DEVICE_ID}/values/timeseries?keys=volume`,
-            {
-                headers: {
-                    'X-Authorization': `Bearer ${token}`
-                }
+        const url = `https://thingsboard.cloud/api/plugins/telemetry/${TB_DEVICE_ID}/values/timeseries?keys=volume`;
+        const response = await axios.get(url, {
+            headers: {
+                'X-Authorization': `Bearer ${token}`
             }
-        );
+        });
 
-        console.log("🛰️ ThingsBoard Telemetry Response:");
+        console.log("ThingsBoard Telemetry Response:");
         console.log(JSON.stringify(response.data, null, 2));
 
         if (
@@ -49,10 +47,15 @@ async function getLatestVolume(token) {
             return null;
         }
     } catch (err) {
-        console.error('Telemetry error:', err.message);
+        if (err.response) {
+            console.error('Telemetry error response:', err.response.status, err.response.data);
+        } else {
+            console.error('Telemetry error:', err.message);
+        }
         return null;
     }
 }
+
 
 // HTTP endpoint: /get-volume
 app.get('/get-volume', async (req, res) => {
