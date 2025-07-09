@@ -3,34 +3,15 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ThingsBoard credentials
-const TB_USERNAME = "anith.kumar@synedynesystems.com";
-const TB_PASSWORD = "Anith@2003";
-const TB_DEVICE_ID = "509c71b0-5bdf-11f0-b50e-99d9c8fcd8e7";
 
-// Authenticate with ThingsBoard to get JWT token
-async function getJWTToken() {
-    try {
-        const response = await axios.post('https://thingsboard.cloud/api/auth/login', {
-            username: TB_USERNAME,
-            password: TB_PASSWORD
-        });
-        return response.data.token;
-    } catch (err) {
-        console.error('Login error:', err.message);
-        return null;
-    }
-}
+const TB_ACCESS_TOKEN = "642trsqvntx5ykmjodj5";
 
-// Fetch latest volume reading from ThingsBoard
-async function getLatestVolume(token) {
+const TB_DEVICE_TELEMETRY_URL = `https://thingsboard.cloud/api/v1/${TB_ACCESS_TOKEN}/telemetry`;
+
+
+async function getLatestVolume() {
     try {
-        const url = `https://thingsboard.cloud/api/plugins/telemetry/${TB_DEVICE_ID}/values/timeseries?keys=volume`;
-        const response = await axios.get(url, {
-            headers: {
-                'X-Authorization': `Bearer ${token}`
-            }
-        });
+        const response = await axios.get(TB_DEVICE_TELEMETRY_URL);
 
         console.log("ThingsBoard Telemetry Response:");
         console.log(JSON.stringify(response.data, null, 2));
@@ -43,32 +24,23 @@ async function getLatestVolume(token) {
         ) {
             return response.data.volume[0].value;
         } else {
-            console.error("Volume data not found in response.");
+            console.error("Volume data not found in telemetry");
             return null;
         }
     } catch (err) {
-        if (err.response) {
-            console.error('Telemetry error response:', err.response.status, err.response.data);
-        } else {
-            console.error('Telemetry error:', err.message);
-        }
+        console.error("Telemetry fetch failed:", err.response?.status, err.response?.data || err.message);
         return null;
     }
 }
 
-
-// HTTP endpoint: /get-volume
+// Route for Alexa/IFTTT to trigger and get volume value
 app.get('/get-volume', async (req, res) => {
-    const token = await getJWTToken();
-    if (!token) return res.status(500).send('Error authenticating with ThingsBoard');
-
-    const volume = await getLatestVolume(token);
+    const volume = await getLatestVolume();
     if (!volume) return res.status(500).send('Could not fetch volume');
-
     res.send(`The current volume is ${volume} liters.`);
 });
 
-// Start server
+// Start the server
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
